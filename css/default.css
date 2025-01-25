@@ -1,0 +1,75 @@
+:root {
+    --bg-color: rgb(15,56,15);
+    --fg-color: rgb(155,188,15);
+    --light-color: rgb(139,172,15);
+    --dark-color: rgb(48,98,48);
+    --base-size: 1vh;
+}
+
+@font-face {
+    font-family: Gameboy;
+    font-display: swap;
+    src: url("/fonts/GameBoy.ttf") format("truetype");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    touch-action: manipulation;
+    user-select: none;
+}
+
+html,
+body {
+    font-family: GameBoy, monospace;
+    font-size: clamp(12px, 1.5vw, 22px);
+    color: var(--fg-color);
+    background-color: var(--bg-color);
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header {
+    flex-grow: 0;
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 4px;
+    font-size: 125%;
+    display: flex;
+    flex-direction: row;
+    gap: 1vw;
+    justify-content: space-around;
+}
+
+main {
+    margin: 0 auto;
+    padding: 4px;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+footer {
+    flex-grow: 0;
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 4px;
+    font-size: 75%;
+    display: flex;
+    flex-direction: row;
+    gap: 1vw;
+    justify-content: space-between;
+}
+
+numemory-game {
+    height: 100%;
+}
