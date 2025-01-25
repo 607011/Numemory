@@ -199,7 +199,7 @@ div {
       * Custom web element representing the Numemory game.
       */
     class NumemoryGame extends HTMLElement {
-        static DefaultNumCards = 12;
+        static DefaultNumCards = 10;
         static DefaultFrontVisibleDurationMs = 1000;
 
         /** 
