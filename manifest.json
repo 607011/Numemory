@@ -1,7 +1,7 @@
 {
     "name": "Numemory",
     "short_name": "Numemory",
-    "description": "A variant of the popular Memory game where you have to flip cards in the correct order",
+    "description": "A variant of the popular Memory game in which you have to flip all cards in the correct order",
     "categories": ["entertainment"],
     "id": "https://numemory.607011.org/",
     "start_url": "/index.html",

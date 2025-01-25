@@ -1,6 +1,6 @@
 # Numemory
 
-**A variant of the popular Memory game: Flip cards in the correct order**
+**A variant of the popular Memory game in which you have to flip all cards in the correct order**
 
 ## The game
 
