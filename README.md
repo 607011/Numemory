@@ -32,3 +32,7 @@ In the following variants the players first have to figure out which cards are l
 - Cards are not numbered consecutively but following a mathematical sequence , e.g. Fibonacci numbers, prime numbers … (see [OEIS](https://oeis.org/) for inspiration).
 - Cards are numbered with historical years accompanied by pictures of famous people that were born in this year, or of events that happened in this year.
 - Expert mode: Cards show _only_ the pictures of historical figures.
+
+## Inspired by …
+
+https://github.com/user-attachments/assets/d2f32990-65ed-4583-97a9-7fed2f97f631
