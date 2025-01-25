@@ -4,7 +4,7 @@
 
 ## The game
 
-- Suitable any number of players.
+- Suitable for any number of players.
 - There are 10 cards consecutively numbered from 1 to 10 on their front sides.
 - At the beginning of the game all cards are shuffled, then placed upside down on the table.
 - The goal is to flip over all cards in ascending order in one go.
