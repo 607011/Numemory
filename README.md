@@ -36,3 +36,5 @@ In the following variants the players first have to figure out which cards are l
 ## Inspired by …
 
 https://github.com/user-attachments/assets/d2f32990-65ed-4583-97a9-7fed2f97f631
+
+(source: https://www.reddit.com/r/maybemaybemaybe/comments/1i81rpg/maybe_maybe_maybe/)
