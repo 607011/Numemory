@@ -9,7 +9,7 @@
 @font-face {
     font-family: Gameboy;
     font-display: swap;
-    src: url("/fonts/GameBoy.ttf") format("truetype");
+    src: url("fonts/GameBoy.ttf") format("truetype");
 }
 
 * {
