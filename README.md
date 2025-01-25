@@ -20,15 +20,15 @@
 
 ### Variants
 
--[ ] More cards increase difficulty.
--[ ] Less cards decrease difficulty.
--[ ] Show cards' front sides for a limited time at the beginning of the game to make it easier.
--[ ] Cards must be flipped over in reverse order.
+- More cards increase difficulty.
+- Less cards decrease difficulty.
+- Show cards' front sides for a limited time at the beginning of the game to make it easier.
+- Cards must be flipped over in reverse order.
 
 ### Thematic decks
 
 In the following variants the players first have to figure out which cards are lowest and highest ;-)
 
--[ ] Cards are not numbered consecutively but following a mathematical sequence , e.g. Fibonacci numbers, prime numbers … (see [OEIS](https://oeis.org/) for inspiration).
--[ ] Cards are numbered with historical years accompanied by pictures of famous people that were born in this year, or of events that happened in this year.
--[ ] Expert mode: Cards show _only_ the pictures of historical figures.
+- Cards are not numbered consecutively but following a mathematical sequence , e.g. Fibonacci numbers, prime numbers … (see [OEIS](https://oeis.org/) for inspiration).
+- Cards are numbered with historical years accompanied by pictures of famous people that were born in this year, or of events that happened in this year.
+- Expert mode: Cards show _only_ the pictures of historical figures.
