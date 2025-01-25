@@ -64,7 +64,7 @@ div {
 
 .back {
     transform: translateZ(-1px) rotateY(180deg);
-    background-image: url(/images/backface.png);
+    background-image: url(images/backface.png);
     background-repeat: repeat;
     background-size: 10px 10px;
     cursor: pointer;
