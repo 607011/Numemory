@@ -307,7 +307,6 @@ numemory-card {
             window.addEventListener("keydown", this._onKeyDown.bind(this));
             window.addEventListener("touchstart", this._onTouchStart.bind(this), { passive: false });
             window.addEventListener("touchend", this._onTouchEnd.bind(this));
-            window.addEventListener("click", this._onClick.bind(this));
             window.addEventListener("cardclicked", this._onCardClicked.bind(this));
         }
 
@@ -462,10 +461,6 @@ numemory-card {
         }
     }
 
-    function onKeyUp(e) {
-
-    }
-
     let el = {};
 
     function main() {
@@ -489,8 +484,6 @@ numemory-card {
         el.game.addEventListener("round", e => {
             el.rounds.textContent = e.detail.round;
         });
-
-        window.addEventListener("keyup", onKeyUp);
 
         el.game.start();
     }
