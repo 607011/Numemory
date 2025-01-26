@@ -361,7 +361,7 @@ numemory-card {
                     card.index = i;
                     do {
                         card.x = Math.floor(Math.random() * (boardRect.width - this._cardSize.width));
-                        card.y = Math.floor(Math.random() * (boardRect.height - this._cardSize.width));
+                        card.y = Math.floor(Math.random() * (boardRect.height - this._cardSize.height));
                     }
                     while (!this._isProperlyPlaced(card));
                     this._cards.push(card);
@@ -375,7 +375,7 @@ numemory-card {
             const bodyRect = document.body.getBoundingClientRect();
             const scale = Math.max(bodyRect.width, bodyRect.height);
             this._cardSize.width = scale / this._numCards;
-            this._cardSize.height = this._cardSize.width * 1.6;
+            this._cardSize.height = this._cardSize.width * 1.5;
             this._dynamicStyle.textContent = `
 :host {
     --card-width: ${this._cardSize.width}px;
@@ -392,7 +392,6 @@ numemory-card {
         }
 
         _onKeyDown(_e) {
-
         }
 
         _onResize(_e) {
