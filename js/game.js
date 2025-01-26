@@ -67,10 +67,7 @@ div {
     background-repeat: repeat;
     background-size: 24px 24px;
     background-position: -4px 0;
-    image-rendering: -moz-pixelated;
-    image-rendering: -webkit-optimize-contrast;
     image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;
     cursor: pointer;
 }
 
@@ -211,10 +208,16 @@ div {
         static DefaultFrontVisibleDurationMs = 1000;
 
         /** 
-         * Width and height in pixels of a single cell.
-         * @type {object}
+         * Card width in pixels.
+         * @type {Number}
          */
-        _cardSize = { width: 44, height: 58 };
+        _cardWidth;
+
+        /** 
+         * Card height in pixels.
+         * @type {Number}
+         */
+        _cardHeight;
 
         /**
          * Minimum space between cards and cards to table edge.
@@ -243,7 +246,7 @@ div {
         /**
          * @type {HTMLElement}
          */
-        _board;
+        _table;
 
         constructor() {
             super();
@@ -294,14 +297,14 @@ numemory-card {
 
             this._dynamicStyle = document.createElement("style");
 
-            this._board = document.createElement("div");
-            this._board.className = "table";
-            this._board.setAttribute("role", "application");
-            this._board.setAttribute("aria-label", "Numemory - A variant of the popular Memory game where you have to flip cards in the correct order");
+            this._table = document.createElement("div");
+            this._table.className = "table";
+            this._table.setAttribute("role", "application");
+            this._table.setAttribute("aria-label", "Numemory - A variant of the popular Memory game where you have to flip cards in the correct order");
 
             this._numCards = parseInt(this.getAttribute("n") || NumemoryGame.DefaultNumCards);
 
-            this._shadow.append(this._style, this._dynamicStyle, this._board);
+            this._shadow.append(this._style, this._dynamicStyle, this._table);
 
             window.addEventListener("resize", this._onResize.bind(this));
             window.addEventListener("touchstart", this._onTouchStart.bind(this), { passive: false });
@@ -322,10 +325,10 @@ numemory-card {
 
         _noOverlaps(card) {
             return this._cards.every(existingCard =>
-                card.x > existingCard.x + this._cardSize.width + this._cardGap ||
-                card.x + this._cardSize.width + this._cardGap < existingCard.x ||
-                card.y > existingCard.y + this._cardSize.height + this._cardGap ||
-                card.y + this._cardSize.height + this._cardGap < existingCard.y);
+                card.x > existingCard.x + this._cardWidth + this._cardGap ||
+                card.x + this._cardWidth + this._cardGap < existingCard.x ||
+                card.y > existingCard.y + this._cardHeight + this._cardGap ||
+                card.y + this._cardHeight + this._cardGap < existingCard.y);
         }
 
         /**
@@ -334,29 +337,38 @@ numemory-card {
          * @return {Boolean} `true` if card fits, `false` otherwise
          */
         _fitsOnTable(card) {
-            const boardRect = this._board.getBoundingClientRect();
+            const { width, height } = this._table.getBoundingClientRect();
             const doesFit = (
-                card.x >= 0 &&
-                card.y >= 0 &&
-                card.x + this._cardSize.width + this._cardGap < boardRect.width &&
-                card.y + this._cardSize.height + this._cardGap < boardRect.height
+                card.x >= this._cardGap &&
+                card.y >= this._cardGap &&
+                card.x + this._cardWidth + this._cardGap < width &&
+                card.y + this._cardHeight + this._cardGap < height
             );
             return doesFit;
         }
 
+        /**
+         * Check if given card neither overlaps another nor the edge of the table.
+         * 
+         * @param {Card} card 
+         * @returns {Boolean} `true` if card neither overlaps another nor the edge of the table, `false` otherwise
+         */
         _isProperlyPlaced(card) {
             return this._noOverlaps(card) && this._fitsOnTable(card);
         }
 
+        /**
+         * Create cards and place them randomly on the table.
+         */
         _generateCards() {
+            const { width, height } = this._table.getBoundingClientRect();
             do {
                 this._cards = [];
-                const boardRect = this._board.getBoundingClientRect();
                 let restart = false;
                 for (let i = 0; i < this._numCards && !restart; ++i) {
                     const card = document.createElement("numemory-card");
-                    card.width = this._cardSize.width;
-                    card.height = this._cardSize.height;
+                    card.width = this._cardWidth;
+                    card.height = this._cardHeight;
                     card.html = `<span>${i}</span>`;
                     card.index = i;
                     let tries = 0;
@@ -365,8 +377,8 @@ numemory-card {
                             restart = true;
                             break;
                         }
-                        card.x = Math.floor(Math.random() * (boardRect.width - this._cardSize.width));
-                        card.y = Math.floor(Math.random() * (boardRect.height - this._cardSize.height));
+                        card.x = Math.floor(Math.random() * (width - this._cardWidth));
+                        card.y = Math.floor(Math.random() * (height - this._cardHeight));
                     }
                     while (!this._isProperlyPlaced(card) && !restart);
                     if (!restart)
@@ -374,31 +386,28 @@ numemory-card {
                 }
             }
             while (this._cards.length < this._numCards);
-            this._board.replaceChildren(...this._cards);
+            this._table.replaceChildren(...this._cards);
         }
 
         _updateDynamicStyles() {
-            const bodyRect = document.body.getBoundingClientRect();
-            const scale = 1.4 * Math.min(bodyRect.width, bodyRect.height);
-            this._cardSize.width = scale / this._numCards;
-            this._cardSize.height = this._cardSize.width * 1.5;
+            const { width, height } = document.body.getBoundingClientRect();
+            const scale = 1.4 * Math.min(width, height);
+            this._cardWidth = scale / this._numCards;
+            this._cardHeight = this._cardWidth * 1.5;
             this._dynamicStyle.textContent = `
 :host {
-    --card-width: ${this._cardSize.width}px;
-    --card-height: ${this._cardSize.height}px;
-    --font-size: ${Math.floor(this._cardSize.width / 3)}px;
-    --table-width: ${bodyRect.width}px;
-    --table-height: ${bodyRect.height}px;
+    --card-width: ${this._cardWidth}px;
+    --card-height: ${this._cardHeight}px;
+    --font-size: ${Math.floor(this._cardWidth / 3)}px;
+    --table-width: ${width}px;
+    --table-height: ${height}px;
 }
 `;
         }
 
-        _adjustCardSize() {
-            this._updateDynamicStyles();
-        }
-
+        /** @param {ResizeEvent} _e - not used */
         _onResize(_e) {
-            this._adjustCardSize();
+            this._updateDynamicStyles();
         }
 
         /** @param {TouchEvent} _e - not used */
@@ -426,9 +435,9 @@ numemory-card {
                 return;
             if (e.detail.index !== this._cardIndex) {
                 this.lock();
-                this._board.classList.add("wrong");
+                this._table.classList.add("wrong");
                 setTimeout(() => {
-                    this.dispatchEvent(new CustomEvent("round", { detail: { round: ++this._round } }))
+                    ++this.round;
                     this._reset();
                 }, NumemoryGame.DefaultFrontVisibleDurationMs);
             }
@@ -438,14 +447,14 @@ numemory-card {
                     setTimeout(() => {
                         alert("You won!");
                         this.newGame();
-                    })
+                    }, 250);
                 }
             }
         }
 
         _reset() {
             this.unlock();
-            this._board.classList.remove("wrong");
+            this._table.classList.remove("wrong");
             this._cardIndex = 0;
             this._cards.forEach(card => card.hide());
         }
@@ -467,8 +476,16 @@ numemory-card {
         newGame() {
             this._generateCards();
             this._reset();
-            this._round = 1;
-            this.dispatchEvent(new CustomEvent("round", { detail: { round: 1 } }))
+            this.round = 1;
+        }
+
+        /**
+         * Set round number.
+         * @param {Number} round
+         */
+        set round(round) {
+            this._round = round;
+            this.dispatchEvent(new CustomEvent("round", { detail: { round } }))
         }
     }
 
@@ -476,6 +493,7 @@ numemory-card {
 
     function main() {
         console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
+        console.info("Copyright ©️ 2025 Oliver Lau <oliver@ersatzworld.net>");
 
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/service-worker.js")
@@ -499,5 +517,5 @@ numemory-card {
         el.game.start();
     }
 
-    window.addEventListener("load", main);
+    window.addEventListener("pageshow", main);
 })(window);
