@@ -358,6 +358,9 @@ numemory-card {
 
         _updateDynamicStyles() {
             const bodyRect = document.body.getBoundingClientRect();
+            const scale = Math.max(bodyRect.width, bodyRect.height);
+            this._cardSize.width = scale / this._numCards;
+            this._cardSize.height = this._cardSize.width * 1.6;
             this._dynamicStyle.textContent = `
 :host {
     --card-width: ${this._cardSize.width}px;
@@ -369,7 +372,7 @@ numemory-card {
 `;
         }
 
-        _adjustCellSize() {
+        _adjustCardSize() {
             this._updateDynamicStyles();
         }
 
@@ -378,7 +381,7 @@ numemory-card {
         }
 
         _onResize(_e) {
-            this._adjustCellSize();
+            this._adjustCardSize();
         }
 
         /** @param {TouchEvent} _e - not used */
