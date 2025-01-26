@@ -258,7 +258,7 @@ div {
     padding: 0;
     box-sizing: border-box;
     touch-action: manipulation;
-    font-size: calc(var(--card-size) / 2);
+    font-size: calc(var(--card-height) / 2);
 }
 .table {
     position: relative;
