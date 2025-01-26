@@ -24,6 +24,7 @@
 - Less cards decrease difficulty.
 - Show cards' front sides for a limited time at the beginning of the game to make it easier.
 - Cards must be flipped over in reverse order.
+- After wrong turn, cards stay visible until table is clicked/touched.
 
 ### Thematic decks
 
