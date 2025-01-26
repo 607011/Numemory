@@ -1,8 +1,9 @@
-const CACHE_NAME = "my-cache-v1";
+const CACHE_NAME = "numemory-cache-v1";
 const urlsToCache = [
     "/",
     "/js/game.js",
     "/css/default.css",
+    "/images/backface.png",
     "/fonts/GameBoy.ttf",
 ];
 
