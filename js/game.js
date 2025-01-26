@@ -420,7 +420,10 @@ numemory-card {
 
         /** @param {CustomEvent} e  */
         _onCardClicked(e) {
+            if (this._locked)
+                return;
             if (e.detail.index !== this._cardIndex) {
+                this.lock();
                 this._board.classList.add("wrong");
                 setTimeout(() => {
                     this.dispatchEvent(new CustomEvent("round", { detail: { round: ++this._round } }))
@@ -429,22 +432,28 @@ numemory-card {
             }
             else {
                 if (++this._cardIndex === this._numCards) {
-                    alert("You won!");
-                    this._locked = true;
+                    this.lock();
+                    setTimeout(() => {
+                        alert("You won!");
+                        this.newGame();
+                    })
                 }
             }
         }
 
-        /** @param {TouchEvent|PointerEvent} e  */
-        _onClick(e) {
-        }
-
         _reset() {
+            this.unlock();
             this._board.classList.remove("wrong");
             this._cardIndex = 0;
-            for (const card of this._cards) {
-                card.hide();
-            }
+            this._cards.forEach(card => card.hide());
+        }
+
+        lock() {
+            this._locked = true;
+        }
+
+        unlock() {
+            this._locked = false;
         }
 
         start() {
