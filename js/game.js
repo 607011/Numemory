@@ -208,6 +208,8 @@ div {
          */
         _cardSize = { width: 44, height: 58 };
 
+        _cardGap = 4;
+
         /**
          * Array of cards placed on the table
          * @type {Card[]}
@@ -305,11 +307,11 @@ numemory-card {
         }
 
         _noOverlaps(card) {
-            return this._cards.every(existingCard => {
-                const overlapX = !(card.x > existingCard.x + this._cardSize.width || card.x + this._cardSize.width < existingCard.x);
-                const overlapY = !(card.y > existingCard.y + this._cardSize.height || card.y + this._cardSize.height < existingCard.y);
-                return !(overlapX && overlapY);
-            });
+            return this._cards.every(existingCard =>
+                card.x > existingCard.x + this._cardSize.width + this._cardGap ||
+                card.x + this._cardSize.width + this._cardGap < existingCard.x ||
+                card.y > existingCard.y + this._cardSize.height + this._cardGap ||
+                card.y + this._cardSize.height + this._cardGap < existingCard.y);
         }
 
         /**
