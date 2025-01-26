@@ -324,8 +324,8 @@ numemory-card {
             const doesFit = (
                 card.x >= 0 &&
                 card.y >= 0 &&
-                card.x + this._cardSize.width < boardRect.width &&
-                card.y + this._cardSize.height < boardRect.height
+                card.x + this._cardSize.width + this._cardGap< boardRect.width &&
+                card.y + this._cardSize.height + this._cardGap < boardRect.height
             );
             return doesFit;
         }
