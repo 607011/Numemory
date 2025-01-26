@@ -304,7 +304,6 @@ numemory-card {
             this._shadow.append(this._style, this._dynamicStyle, this._board);
 
             window.addEventListener("resize", this._onResize.bind(this));
-            window.addEventListener("keydown", this._onKeyDown.bind(this));
             window.addEventListener("touchstart", this._onTouchStart.bind(this), { passive: false });
             window.addEventListener("touchend", this._onTouchEnd.bind(this));
             window.addEventListener("cardclicked", this._onCardClicked.bind(this));
@@ -339,7 +338,7 @@ numemory-card {
             const doesFit = (
                 card.x >= 0 &&
                 card.y >= 0 &&
-                card.x + this._cardSize.width + this._cardGap< boardRect.width &&
+                card.x + this._cardSize.width + this._cardGap < boardRect.width &&
                 card.y + this._cardSize.height + this._cardGap < boardRect.height
             );
             return doesFit;
@@ -353,18 +352,25 @@ numemory-card {
             do {
                 this._cards = [];
                 const boardRect = this._board.getBoundingClientRect();
-                for (let i = 0; i < this._numCards; ++i) {
+                let restart = false;
+                for (let i = 0; i < this._numCards && !restart; ++i) {
                     const card = document.createElement("numemory-card");
                     card.width = this._cardSize.width;
                     card.height = this._cardSize.height;
                     card.html = `<span>${i}</span>`;
                     card.index = i;
+                    let tries = 0;
                     do {
+                        if (++tries > 10) {
+                            restart = true;
+                            break;
+                        }
                         card.x = Math.floor(Math.random() * (boardRect.width - this._cardSize.width));
                         card.y = Math.floor(Math.random() * (boardRect.height - this._cardSize.height));
                     }
-                    while (!this._isProperlyPlaced(card));
-                    this._cards.push(card);
+                    while (!this._isProperlyPlaced(card) && !restart);
+                    if (!restart)
+                        this._cards.push(card);
                 }
             }
             while (this._cards.length < this._numCards);
@@ -373,7 +379,7 @@ numemory-card {
 
         _updateDynamicStyles() {
             const bodyRect = document.body.getBoundingClientRect();
-            const scale = Math.max(bodyRect.width, bodyRect.height);
+            const scale = 1.4 * Math.min(bodyRect.width, bodyRect.height);
             this._cardSize.width = scale / this._numCards;
             this._cardSize.height = this._cardSize.width * 1.5;
             this._dynamicStyle.textContent = `
@@ -391,9 +397,6 @@ numemory-card {
             this._updateDynamicStyles();
         }
 
-        _onKeyDown(_e) {
-        }
-
         _onResize(_e) {
             this._adjustCardSize();
         }
@@ -401,7 +404,6 @@ numemory-card {
         /** @param {TouchEvent} _e - not used */
         _onTouchStart(_e) {
             this._touchStartTime = performance.now();
-            this._stimulatePlayer();
         }
 
         /** @param {TouchEvent} e  */
@@ -463,6 +465,7 @@ numemory-card {
         }
 
         newGame() {
+            this._generateCards();
             this._reset();
             this._round = 1;
             this.dispatchEvent(new CustomEvent("round", { detail: { round: 1 } }))
