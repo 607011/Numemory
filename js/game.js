@@ -216,6 +216,10 @@ div {
          */
         _cardSize = { width: 44, height: 58 };
 
+        /**
+         * Minimum space between cards and cards to table edge.
+         * @type {Number}
+         */
         _cardGap = 4;
 
         /**
@@ -224,6 +228,10 @@ div {
          */
         _cards = [];
 
+        /**
+         * Current card index.
+         * @type {Number}
+         */
         _cardIndex = 0;
 
         /**
