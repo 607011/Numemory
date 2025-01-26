@@ -50,7 +50,7 @@ div {
     position: absolute;
     width: 100%;
     height: 100%;
-    border: 1px solid var(--light-color);
+    border: 2px solid var(--light-color);
     text-align: center;
     backface-visibility: hidden;
 }
