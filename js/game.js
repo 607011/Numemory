@@ -24,7 +24,6 @@
         }
 
         connectedCallback() {
-            // console.debug("Card.connectedCallback()");
             this._shadow = this.attachShadow({ mode: "open" });
             this._style = document.createElement("style");
             this._style.textContent = `
