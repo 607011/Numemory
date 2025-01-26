@@ -65,12 +65,21 @@ div {
     transform: translateZ(-1px) rotateY(180deg);
     background-image: url(images/backface.png);
     background-repeat: repeat;
-    background-size: 10px 10px;
+    background-size: 24px 24px;
+    background-position: -4px 0;
+    image-rendering: -moz-pixelated;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
     cursor: pointer;
 }
 
 .face > * {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .upside-down {
