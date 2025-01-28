@@ -177,12 +177,15 @@ div {
             }
         }
 
+        /**
+         * @param {MouseEvent} e 
+         */
         _onClick(e) {
-            const target = e.target.classList.contains("container") ? e.target : e.target.parentNode;
+            const target = e.target.closest(".container");
             if (target.classList.contains("upside-down")) {
-                window.dispatchEvent(new CustomEvent("cardclicked", { detail: { index: this.index } }));
+                window.dispatchEvent(new CustomEvent("cardclicked", { detail: { card: this } }));
             }
-            target.classList.remove("upside-down");
+            e.stopImmediatePropagation();
             e.preventDefault();
         }
 
@@ -302,6 +305,20 @@ div {
          */
         _table;
 
+        /**
+         * `true` if cards must be clicked in reverse order.
+         * @type {Boolean}
+         */
+        _reverseOrder = false;
+
+        /**
+         * `true` if cards are automatically flipped upside-down after wrong card was clicked.
+         * @type {Boolean}
+         */
+        _autoHide = false;
+
+        _visibilityDurationMs = NumemoryGame.DefaultFrontVisibleDurationMs;
+
         constructor() {
             super();
         }
@@ -363,6 +380,7 @@ numemory-card {
             window.addEventListener("resize", this._onResize.bind(this));
             window.addEventListener("touchstart", this._onTouchStart.bind(this), { passive: false });
             window.addEventListener("touchend", this._onTouchEnd.bind(this));
+            window.addEventListener("click", this._onClick.bind(this));
             window.addEventListener("cardclicked", this._onCardClicked.bind(this));
         }
 
@@ -377,38 +395,17 @@ numemory-card {
             }
         }
 
-        _noOverlaps(card) {
+        /**
+         * Check if given overlaps any of the already placed card.
+         * @param {Card} card
+         * @returns {Boolean} `true` if card doesn't overlap any other
+         */
+        _doesNotOverlap(card) {
             return this._cards.every(existingCard =>
                 card.x > existingCard.x + this._cardWidth + this._cardGap ||
                 card.x + this._cardWidth + this._cardGap < existingCard.x ||
                 card.y > existingCard.y + this._cardHeight + this._cardGap ||
                 card.y + this._cardHeight + this._cardGap < existingCard.y);
-        }
-
-        /**
-         * Check if the card fits on the table, i.e. does not cross the boundaries of `this._board`.
-         * @param {Card} card 
-         * @return {Boolean} `true` if card fits, `false` otherwise
-         */
-        _fitsOnTable(card) {
-            const { width, height } = this._table.getBoundingClientRect();
-            const doesFit = (
-                card.x >= this._cardGap &&
-                card.y >= this._cardGap &&
-                card.x + this._cardWidth + this._cardGap < width &&
-                card.y + this._cardHeight + this._cardGap < height
-            );
-            return doesFit;
-        }
-
-        /**
-         * Check if given card neither overlaps another nor the edge of the table.
-         * 
-         * @param {Card} card 
-         * @returns {Boolean} `true` if card neither overlaps another nor the edge of the table, `false` otherwise
-         */
-        _isProperlyPlaced(card) {
-            return this._noOverlaps(card) && this._fitsOnTable(card);
         }
 
         /**
@@ -419,24 +416,28 @@ numemory-card {
             do {
                 this._cards = [];
                 let restart = false;
-                for (let i = 0; i < this._numCards && !restart; ++i) {
+                for (let [i, number] of SERIES.exponential(this._numCards)) {
                     const card = document.createElement("numemory-card");
-                    card.width = this._cardWidth;
-                    card.height = this._cardHeight;
-                    card.html = `<span>${i}</span>`;
-                    card.index = i;
                     let tries = 0;
                     do {
-                        if (++tries > 10) {
+                        if (++tries > 20) {
                             restart = true;
                             break;
                         }
-                        card.x = Math.floor(Math.random() * (width - this._cardWidth));
-                        card.y = Math.floor(Math.random() * (height - this._cardHeight));
+                        card.x = this._cardGap + Math.floor(Math.random() * (width - this._cardWidth - 2 * this._cardGap));
+                        card.y = this._cardGap + Math.floor(Math.random() * (height - this._cardHeight - 2 * this._cardGap));
                     }
-                    while (!this._isProperlyPlaced(card) && !restart);
-                    if (!restart)
+                    while (!this._doesNotOverlap(card));
+                    if (restart) {
+                        break;
+                    }
+                    else {
+                        card.index = i;
+                        card.width = this._cardWidth;
+                        card.height = this._cardHeight;
+                        card.html = `<span>${number}</span>`;
                         this._cards.push(card);
+                    }
                 }
             }
             while (this._cards.length < this._numCards);
@@ -483,21 +484,31 @@ numemory-card {
             this._lastTapTime = currentTime;
         }
 
+        _onClick(_e) {
+            if (this._locked && !this._autoHide) {
+                this._cards.forEach(card => card.hide());
+                this.unlock();
+            }
+        }
+
         /** @param {CustomEvent} e  */
         _onCardClicked(e) {
+            const card = e.detail.card;
             if (this._locked)
                 return;
-            if (e.detail.index !== this._cardIndex) {
-                this.lock();
+            card.show();
+            if (card.index !== this._cardIndex) {
                 this._table.classList.add("wrong");
-                setTimeout(() => {
-                    ++this.round;
-                    this._reset();
-                }, NumemoryGame.DefaultFrontVisibleDurationMs);
+                this.lock();
+                if (this._autoHide) {
+                    setTimeout(() => {
+                        ++this.round;
+                        this._reset();
+                    }, this._visibilityDurationMs);    
+                }
             }
             else {
                 if (++this._cardIndex === this._numCards) {
-                    this.lock();
                     setTimeout(() => {
                         alert("You won!");
                         this.newGame();
@@ -515,10 +526,12 @@ numemory-card {
 
         lock() {
             this._locked = true;
+            console.debug("lock()");
         }
 
         unlock() {
             this._locked = false;
+            console.debug("unlock()");
         }
 
         start() {
@@ -532,7 +545,23 @@ numemory-card {
             this._reset();
             this.round = 1;
         }
-
+        /** @param {Boolean} enabled */
+        set reverseOrder(enabled) {
+            this._reverseOrder = enabled;
+        }
+        get reverseOrder() {
+            return this._reverseOrder;
+        }
+        /** @param {Boolean} enabled */
+        set autoHide(enabled) {
+            this._autoHide = enabled;
+        }
+        get autoHide() {
+            return this._autoHide;
+        }
+        get round() {
+            return this._round;
+        }
         /**
          * Set round number.
          * @param {Number} round
@@ -541,9 +570,53 @@ numemory-card {
             this._round = round;
             this.dispatchEvent(new CustomEvent("round", { detail: { round } }))
         }
+
+        get numCards() {
+            return this._numCards;
+        }
+        set numCards(numCards) {
+            this._numCards = numCards;
+        }
     }
 
     let el = {};
+
+    function enableSettingsDialog() {
+        el.settingsDialog = document.querySelector("#settings-dialog");
+        const numCardsInput = el.settingsDialog.querySelector("input[name='num-cards']");
+        const autoHideCheckbox = el.settingsDialog.querySelector("input[name='auto-hide']");
+        autoHideCheckbox.addEventListener("click", e => e.stopPropagation());
+        const reverseOrderCheckbox = el.settingsDialog.querySelector("input[name='reverse-order']");
+        reverseOrderCheckbox.addEventListener("click", e => e.stopPropagation());
+        const cancelButton = el.settingsDialog.querySelector('button[data-id="cancel"]');
+        cancelButton.addEventListener("click", e => {
+            el.settingsDialog.close();
+            e.stopImmediatePropagation();
+        });
+        const applyButton = el.settingsDialog.querySelector('button[data-id="apply"]');
+        applyButton.addEventListener("click", e => {
+            const numCards = parseInt(numCardsInput.value);
+            const newGame = el.game.reverseOrder !== reverseOrderCheckbox.checked || el.game.numCards !== numCards;
+            el.game.numCards = numCards;
+            el.game.autoHide = autoHideCheckbox.checked;
+            el.game.reverseOrder = reverseOrderCheckbox.checked;
+            el.settingsDialog.close();
+            e.stopPropagation();
+            e.preventDefault();
+            if (newGame) {
+                el.game.newGame();
+            }
+        });
+        window.addEventListener("showsettings", () => {
+            numCardsInput.value = el.game.numCards;
+            autoHideCheckbox.checked = el.game.autoHide;
+            reverseOrderCheckbox.checked = el.game.reverseOrder;
+            el.settingsDialog.showModal();
+        });
+        document.querySelector("#menu-button").addEventListener("click",
+            () => dispatchEvent(new CustomEvent("showsettings")));
+    }
+
 
     function main() {
         console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
@@ -568,6 +641,7 @@ numemory-card {
             el.rounds.textContent = e.detail.round;
         });
 
+        enableSettingsDialog();
         el.game.start();
     }
 

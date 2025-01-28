@@ -22,6 +22,7 @@
     <header>
         <div>Numemory</div>
         <div>Round <span id="rounds">0</span></div>
+        <div><span id="menu-button">(</span></div>
     </header>
     <main>
         <numemory-game></numemory-game>
@@ -34,22 +35,33 @@
         <div>
             <h2>Settings</h2>
             <p>
-                <input type="checkbox" name="animated-player" id="animated-player"></input>
-                <label for="animated-player">Animate player</label>
+                <label for="num-cards">Number of cards</label>
+                <input type="number" value="10" min="3" name="num-cards" id="num-cards"></input>
             </p>
             <p>
-                <input type="checkbox" name="sound-enabled" id="sound-enabled"></input>
-                <label for="sound-enabled">Sound</label>
+                <input type="checkbox" name="auto-hide" id="auto-hide"></input>
+                <label for="auto-hide">Automatically hide cards after failure</label>
+            </p>
+            <p>
+                <input type="checkbox" name="reverse-order" id="reverse-order"></input>
+                <label for="reverse-order">Cards must be selected in reverse order</label>
             </p>
             <p>
                 <button data-id="cancel">Cancel</button>
                 <button data-id="apply">Apply</button>
             </p>
-            <h2>Actions</h2>
-            <p><button data-id="show-solution">Show solution</button></p>
-            <p><button data-id="choose-collection">Choose collection</button></p>
         </div>
     </dialog>
-    <script src="js/game.js"></script>
+    <dialog id="new-game-dialog">
+        <h2>New game?</h2>
+        <p>
+            Settings changed, restart required. Do you really want to start a new game?
+        </p>
+        <p>
+            <button data-id="no">No</button>
+            <button data-id="yes">Apply</button>
+        </p>
+</dialog>
+    <script src="js/game.js" async></script>
 </body>
 </html>

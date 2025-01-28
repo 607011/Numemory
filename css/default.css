@@ -74,6 +74,10 @@ numemory-game {
     height: 100%;
 }
 
+#menu-button {
+    cursor: pointer;
+}
+
 dialog {
     position: fixed;
     top: 50%;
@@ -136,4 +140,9 @@ dialog button {
 
 dialog::backdrop {
     background-color: color-mix(in srgb, var(--bg-color) 50%, transparent);
+}
+
+dialog input[type="number"] {
+    width: 6em;
+    text-align: right;
 }
