@@ -274,10 +274,10 @@ div {
         _cardHeight;
 
         /**
-         * Minimum space between cards and cards to table edge.
+         * Minimum pixels between cards and cards to table edge.
          * @type {Number}
          */
-        _cardGap = 4;
+        _cardGap = 8;
 
         /**
          * Array of cards placed on the table
