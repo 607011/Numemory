@@ -47,15 +47,30 @@
         _x;
         /** @type {Number} */
         _y;
-        /** @type {Number} */
+        /**
+         * Width of card in pixels
+         * @type {Number}
+         */
         _width;
-        /** @type {Number} */
+        /**
+         * Height of card in pixels
+         * @type {Number}
+         */
         _height;
-        /** @type {HTMLDivElement} */
+        /**
+         * HTML element holding the front face of the card.
+         * @type {HTMLDivElement}
+         */
         _front;
-        /** @type {HTMLDivElement} */
+        /**
+         * HTML element holding the back face of the card. 
+         * @type {HTMLDivElement}
+         */
         _back;
-        /** @type {HTMLDivElement} */
+        /**
+         * Contents of the front face (see `_front`)
+         * @type {HTMLDivElement}
+         */
         _imprint = document.createElement("div");
 
         constructor() {
