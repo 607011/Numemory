@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Numemory</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A variant of the popular Memory game in which you have to flip all cards in the correct order">
+    <meta name="description"
+        content="A variant of the popular Memory game in which you have to flip all cards in the correct order">
     <meta name="keywords" content="game, recreational, puzzle, memory, all ages">
     <meta name="rating" content="safe for kids">
     <meta name="author" content="Oliver Lau">
@@ -18,6 +20,7 @@
     <link rel="stylesheet" href="css/default.css">
     <link rel="preload" as="image" href="images/backface.png" />
 </head>
+
 <body>
     <header>
         <div>Numemory</div>
@@ -34,22 +37,40 @@
     <dialog id="settings-dialog">
         <div>
             <h2>Settings</h2>
-            <p>
-                <label for="num-cards">Number of cards</label>
-                <input type="number" value="10" min="3" name="num-cards" id="num-cards"></input>
-            </p>
-            <p>
-                <input type="checkbox" name="auto-hide" id="auto-hide"></input>
-                <label for="auto-hide">Automatically hide cards after failure</label>
-            </p>
-            <p>
-                <input type="checkbox" name="reverse-order" id="reverse-order"></input>
-                <label for="reverse-order">Cards must be selected in reverse order</label>
-            </p>
-            <p>
-                <button data-id="cancel">Cancel</button>
-                <button data-id="apply">Apply</button>
-            </p>
+            <div class="form">
+                <div>
+                    <input type="number" size="3" value="10" min="3" name="num-cards" id="num-cards"></input>
+                </div>
+                <div>
+                    <label for="num-cards">Number of cards</label>
+                </div>
+
+                <div>
+                    <input type="checkbox" name="auto-hide" id="auto-hide"></input>
+                </div>
+                <div>
+                    <label for="auto-hide">Automatically hide cards after wrong turn</label>
+                </div>
+                <div>
+                    <input type="number" size="5" value="500" min="100" max="10000" step="100" name="auto-hide-ms"
+                        id="auto-hide-ms"></input>
+                </div>
+                <div>
+                    <label for="auto-hide-ms">Millisecs to wait before cards are automatically flipped
+                        upside-down</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="reverse-order" id="reverse-order"></input>
+                </div>
+                <div>
+                    <label for="reverse-order">Cards must be selected in reverse order</label>
+                </div>
+                <div></div>
+            </div>
+        </div>
+        <div>
+            <button data-id="cancel">Cancel</button>
+            <button data-id="apply">Apply</button>
         </div>
     </dialog>
     <dialog id="new-game-dialog">
@@ -61,7 +82,8 @@
             <button data-id="no">No</button>
             <button data-id="yes">Apply</button>
         </p>
-</dialog>
+    </dialog>
     <script src="js/game.js" async></script>
 </body>
+
 </html>

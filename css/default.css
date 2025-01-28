@@ -35,21 +35,24 @@ body {
     height: 100vh;
 }
 
-header {
-    flex-grow: 0;
+header, footer {
     background-color: var(--dark-color);
-    color: var(--fg-color);
-    padding: 4px;
-    font-size: 150%;
     display: flex;
+    flex-grow: 0;
     flex-direction: row;
     gap: 1vw;
     justify-content: space-between;
+    padding: 4px 8px;
+}
+
+header {
+    color: var(--fg-color);
+    font-size: 150%;
 }
 
 main {
     margin: 0 auto;
-    padding: 4px;
+    padding: 8px;
     width: 100vw;
     display: flex;
     flex-direction: column;
@@ -59,14 +62,7 @@ main {
 }
 
 footer {
-    flex-grow: 0;
-    background-color: var(--dark-color);
     color: var(--light-color);
-    padding: 4px;
-    display: flex;
-    flex-direction: row;
-    gap: 1vw;
-    justify-content: space-between;
 }
 
 numemory-game {
@@ -82,7 +78,6 @@ dialog {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: none;
     padding: 1em;
     background: var(--bg-color);
     color: var(--fg-color);
@@ -101,10 +96,11 @@ dialog * {
 dialog>div {
     margin: 0 auto;
     width: fit-content;
+    font-size: 1.2rem;
 }
 
 dialog h2 {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     margin: 0 0 1ex 0;
 }
 
@@ -116,7 +112,17 @@ dialog p {
     margin: 0 0 1ex 0;
 }
 
-dialog>p:last-child {
+dialog .form {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 16px;
+}
+
+dialog .form > div:nth-child(odd) {
+    text-align: right;
+}
+
+dialog>div:last-child {
     margin-top: 2ex;
 }
 
@@ -142,6 +148,28 @@ dialog::backdrop {
 }
 
 dialog input[type="number"] {
-    width: 6em;
     text-align: right;
+}
+
+dialog input[type="checkbox"] {
+    outline-width: calc(clamp(18px, 2vw, 22px) / 2);
+    outline-color: var(--dark-color);
+    outline-style: solid;
+    background-color: var(--bg-color);
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+}
+
+
+label:not(:has(input[type="checkbox"]:checked)) {
+    background-color: var(--bg-color);
+}
+
+label:has(input[type="checkbox"]:checked) {
+    background-color: var(--light-color);
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--light-color);
 }

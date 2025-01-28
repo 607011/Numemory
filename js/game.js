@@ -85,7 +85,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-size: calc(var(--base-size) * 2);
 }
 
 div {
@@ -113,6 +112,15 @@ div {
     cursor: not-allowed;
     pointer-events: none;
     background-color: var(--dark-color);
+}
+
+.front.face > div {
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+}
+
+.front.face > div:first-child {
+    font-size: 2rem;
 }
 
 .back {
@@ -170,7 +178,7 @@ div {
                     this.height = parseInt(newValue);
                     break;
                 case "text":
-                    this.text = newValue;
+                    this.html = newValue;
                     break;
                 default:
                     break;
@@ -315,9 +323,10 @@ div {
          * `true` if cards are automatically flipped upside-down after wrong card was clicked.
          * @type {Boolean}
          */
-        _autoHide = false;
+        _autoHide = true;
 
-        _visibilityDurationMs = NumemoryGame.DefaultFrontVisibleDurationMs;
+        /** @type {Number} Milliseconds to wait before wrong cards will be flipped upside-down automatically */
+        _autoHideMs = NumemoryGame.DefaultFrontVisibleDurationMs;
 
         constructor() {
             super();
@@ -424,8 +433,8 @@ numemory-card {
                             restart = true;
                             break;
                         }
-                        card.x = this._cardGap + Math.floor(Math.random() * (width - this._cardWidth - 2 * this._cardGap));
-                        card.y = this._cardGap + Math.floor(Math.random() * (height - this._cardHeight - 2 * this._cardGap));
+                        card.x = this._cardGap + (Math.random() * (width - this._cardWidth - 2 * this._cardGap)) | 0;
+                        card.y = this._cardGap + (Math.random() * (height - this._cardHeight - 2 * this._cardGap)) | 0;
                     }
                     while (!this._doesNotOverlap(card));
                     if (restart) {
@@ -486,8 +495,7 @@ numemory-card {
 
         _onClick(_e) {
             if (this._locked && !this._autoHide) {
-                this._cards.forEach(card => card.hide());
-                this.unlock();
+                this._reset();
             }
         }
 
@@ -504,7 +512,7 @@ numemory-card {
                     setTimeout(() => {
                         ++this.round;
                         this._reset();
-                    }, this._visibilityDurationMs);    
+                    }, this._autoHideMs);    
                 }
             }
             else {
@@ -524,14 +532,14 @@ numemory-card {
             this._cards.forEach(card => card.hide());
         }
 
+        /** Disable user interaction */
         lock() {
             this._locked = true;
-            console.debug("lock()");
         }
 
+        /** Enable user interaction */
         unlock() {
             this._locked = false;
-            console.debug("unlock()");
         }
 
         start() {
@@ -545,23 +553,32 @@ numemory-card {
             this._reset();
             this.round = 1;
         }
+
+        /** @returns {Boolean} `true` if cards have to be selected in reverse order */
+        get reverseOrder() {
+            return this._reverseOrder;
+        }
+
         /** @param {Boolean} enabled */
         set reverseOrder(enabled) {
             this._reverseOrder = enabled;
         }
-        get reverseOrder() {
-            return this._reverseOrder;
-        }
-        /** @param {Boolean} enabled */
+
+        /** @param {Boolean} enabled - `true` to turn cards automatically upside-down after wrong turn */
         set autoHide(enabled) {
             this._autoHide = enabled;
         }
+
+        /** @returns {Boolean} `true` if cards are automatically after wrong turn */
         get autoHide() {
             return this._autoHide;
         }
+
+        /** @returns {Number} Number of current round */
         get round() {
             return this._round;
         }
+
         /**
          * Set round number.
          * @param {Number} round
@@ -571,11 +588,28 @@ numemory-card {
             this.dispatchEvent(new CustomEvent("round", { detail: { round } }))
         }
 
+       /** @returns {Number} number of cards in game */ 
         get numCards() {
             return this._numCards;
         }
-        set numCards(numCards) {
+
+       /** @param {Number} numbCards - number of cards in game */ 
+       set numCards(numCards) {
             this._numCards = numCards;
+        }
+
+        /**
+         * @returns {Number} Milliseconds to wait until a shown card will be automatically flipped upside-down.
+         */
+        get autoHideMs() {
+            return this._autoHideMs;
+        }
+
+        /**
+         * @param {Number} autoHideMs - Milliseconds to wait until a shown card will be automatically flipped upside-down.
+         */
+        set autoHideMs(autoHideMs) {
+            this._autoHideMs = autoHideMs;
         }
     }
 
@@ -584,10 +618,19 @@ numemory-card {
     function enableSettingsDialog() {
         el.settingsDialog = document.querySelector("#settings-dialog");
         const numCardsInput = el.settingsDialog.querySelector("input[name='num-cards']");
+        el.game.numCards = parseInt(localStorage.getItem("numemory-num-cards") || NumemoryGame.DefaultNumCards);
+        numCardsInput.value = el.game.numCards;
         const autoHideCheckbox = el.settingsDialog.querySelector("input[name='auto-hide']");
+        el.game.autoHide = localStorage.getItem("numemory-auto-hide") === "true";
+        autoHideCheckbox.checked = el.game.autoHide;
         autoHideCheckbox.addEventListener("click", e => e.stopPropagation());
         const reverseOrderCheckbox = el.settingsDialog.querySelector("input[name='reverse-order']");
+        el.game.reverseOrder = localStorage.getItem("numemory-reverse-order") === "true";
+        reverseOrderCheckbox.checked = el.game.reverseOrder;
         reverseOrderCheckbox.addEventListener("click", e => e.stopPropagation());
+        const autoHideMsInput = el.settingsDialog.querySelector("input[name='auto-hide-ms']");
+        el.game.autoHideMs = parseInt(localStorage.getItem("numemory-auto-hide-ms") || NumemoryGame.DefaultFrontVisibleDurationMs);
+        autoHideMsInput.value = el.game.autoHideMs
         const cancelButton = el.settingsDialog.querySelector('button[data-id="cancel"]');
         cancelButton.addEventListener("click", e => {
             el.settingsDialog.close();
@@ -598,8 +641,13 @@ numemory-card {
             const numCards = parseInt(numCardsInput.value);
             const newGame = el.game.reverseOrder !== reverseOrderCheckbox.checked || el.game.numCards !== numCards;
             el.game.numCards = numCards;
+            localStorage.setItem("numemory-num-cards", el.game.numCards);
             el.game.autoHide = autoHideCheckbox.checked;
+            localStorage.setItem("numemory-auto-hide", el.game.autoHide);
             el.game.reverseOrder = reverseOrderCheckbox.checked;
+            localStorage.setItem("numemory-reverse-order", el.game.reverseOrder);
+            el.game.autoHideMs = parseInt(autoHideMsInput.value);
+            localStorage.setItem("numemory-auto-hide-ms", el.game.autoHideMs);
             el.settingsDialog.close();
             e.stopPropagation();
             e.preventDefault();
@@ -611,6 +659,7 @@ numemory-card {
             numCardsInput.value = el.game.numCards;
             autoHideCheckbox.checked = el.game.autoHide;
             reverseOrderCheckbox.checked = el.game.reverseOrder;
+            autoHideMsInput.value = el.game.autoHideMs;
             el.settingsDialog.showModal();
         });
         document.querySelector("#menu-button").addEventListener("click",
