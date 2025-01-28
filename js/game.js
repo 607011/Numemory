@@ -22,6 +22,24 @@
 (function (window) {
     "use strict";
 
+    const SERIES = {
+        linear: function* linear(maxNums) {
+            for (let i = 0; i < maxNums; ++i) {
+                yield [i, i];
+            }
+        },
+        quadratic: function* quadratic(maxNums) {
+            for (let i = 0; i < maxNums; ++i) {
+                yield [i, i * i];
+            }
+        },
+        exponential: function* exponential(maxNums) {
+            for (let i = 0; i < maxNums; ++i) {
+                yield [i, 1 << i];
+            }
+        },
+    };
+
     class Card extends HTMLElement {
         /** @type {Number} */
         _index;
