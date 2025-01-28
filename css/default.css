@@ -38,13 +38,13 @@ body {
 header {
     flex-grow: 0;
     background-color: var(--dark-color);
-    color: var(--light-color);
+    color: var(--fg-color);
     padding: 4px;
-    font-size: 125%;
+    font-size: 150%;
     display: flex;
     flex-direction: row;
     gap: 1vw;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 
 main {
@@ -63,7 +63,6 @@ footer {
     background-color: var(--dark-color);
     color: var(--light-color);
     padding: 4px;
-    font-size: 75%;
     display: flex;
     flex-direction: row;
     gap: 1vw;
