@@ -1,8 +1,8 @@
 :root {
-    --bg-color: rgb(15,56,15);
-    --fg-color: rgb(155,188,15);
-    --light-color: rgb(139,172,15);
-    --dark-color: rgb(48,98,48);
+    --bg-color: rgb(15, 56, 15);
+    --fg-color: rgb(155, 188, 15);
+    --light-color: rgb(139, 172, 15);
+    --dark-color: rgb(48, 98, 48);
     --base-size: 1vh;
 }
 
@@ -35,7 +35,8 @@ body {
     height: 100vh;
 }
 
-header, footer {
+header,
+footer {
     background-color: var(--dark-color);
     display: flex;
     flex-grow: 0;
@@ -118,8 +119,63 @@ dialog .form {
     gap: 16px;
 }
 
-dialog .form > div:nth-child(odd) {
+dialog .form>div:nth-child(odd) {
     text-align: right;
+}
+
+@media (max-width: 390px) {
+    dialog .form {
+        display: flex;
+        flex-direction: column;
+        flex-flow: column;
+    }
+
+    dialog .form>div {
+        text-align: left !important;
+    }
+
+    dialog button {
+        margin-bottom: 8px;
+    }
+
+    dialog .form>div:nth-child(odd) {
+        text-align: right;
+        border-bottom: 4px solid var(--dark-color);
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+
+    dialog .form>div:nth-child(1) {
+        order: 2;
+    }
+
+    dialog .form>div:nth-child(2) {
+        order: 1;
+    }
+
+    dialog .form>div:nth-child(3) {
+        order: 4;
+    }
+
+    dialog .form>div:nth-child(4) {
+        order: 3;
+    }
+
+    dialog .form>div:nth-child(5) {
+        order: 6;
+    }
+
+    dialog .form>div:nth-child(6) {
+        order: 5;
+    }
+
+    dialog .form>div:nth-child(7) {
+        order: 8;
+    }
+
+    dialog .form>div:nth-child(8) {
+        order: 7;
+    }
 }
 
 dialog>div:last-child {
@@ -160,7 +216,6 @@ dialog input[type="checkbox"] {
     width: 22px;
     height: 22px;
 }
-
 
 label:not(:has(input[type="checkbox"]:checked)) {
     background-color: var(--bg-color);
