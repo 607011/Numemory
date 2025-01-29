@@ -25,7 +25,7 @@
     const SERIES = {
         linear: function* linear(maxNums) {
             for (let i = 0; i < maxNums; ++i) {
-                yield [i, i];
+                yield [i, i + 1];
             }
         },
         quadratic: function* quadratic(maxNums) {
@@ -425,7 +425,7 @@ numemory-card {
             do {
                 this._cards = [];
                 let restart = false;
-                for (let [i, number] of SERIES.exponential(this._numCards)) {
+                for (let [i, number] of SERIES.linear(this._numCards)) {
                     const card = document.createElement("numemory-card");
                     let tries = 0;
                     do {
@@ -455,7 +455,7 @@ numemory-card {
 
         _updateDynamicStyles() {
             const { width, height } = document.body.getBoundingClientRect();
-            const scale = 1.4 * Math.min(width, height);
+            const scale = 1.2 * Math.min(width, height);
             this._cardWidth = scale / this._numCards;
             this._cardHeight = this._cardWidth * 1.5;
             this._dynamicStyle.textContent = `
@@ -512,14 +512,13 @@ numemory-card {
                     setTimeout(() => {
                         ++this.round;
                         this.reset();
-                    }, this._autoHideMs);    
+                    }, this._autoHideMs);
                 }
             }
             else {
                 if (++this._cardIndex === this._numCards) {
                     setTimeout(() => {
-                        alert("You won!");
-                        this.newGame();
+                        dispatchEvent(new CustomEvent("showwondialog", { detail: { rounds: this._round }}));
                     }, 250);
                 }
             }
@@ -592,13 +591,13 @@ numemory-card {
             this.dispatchEvent(new CustomEvent("round", { detail: { round } }))
         }
 
-       /** @returns {Number} number of cards in game */ 
+        /** @returns {Number} number of cards in game */
         get numCards() {
             return this._numCards;
         }
 
-       /** @param {Number} numbCards - number of cards in game */ 
-       set numCards(numCards) {
+        /** @param {Number} numbCards - number of cards in game */
+        set numCards(numCards) {
             this._numCards = numCards;
         }
 
@@ -619,7 +618,7 @@ numemory-card {
 
     let el = {};
 
-    function enableSettingsDialog() {
+    function configSettingsDialog() {
         el.settingsDialog = document.querySelector("#settings-dialog");
         const numCardsInput = el.settingsDialog.querySelector("input[name='num-cards']");
         el.game.numCards = parseInt(localStorage.getItem("numemory-num-cards") || NumemoryGame.DefaultNumCards);
@@ -639,6 +638,7 @@ numemory-card {
         cancelButton.addEventListener("click", e => {
             el.settingsDialog.close();
             e.stopImmediatePropagation();
+            e.preventDefault();
         });
         const applyButton = el.settingsDialog.querySelector('button[data-id="apply"]');
         applyButton.addEventListener("click", e => {
@@ -677,6 +677,25 @@ numemory-card {
         });
     }
 
+    function configWonDialog() {
+        el.wonDialog = document.querySelector("#won-dialog");
+        el.wonDialog.addEventListener("close", () => {
+            el.game.newGame();
+        });
+        const continueButton = el.wonDialog.querySelector('button[data-id="new-game"]');
+        continueButton.addEventListener("click", e => {
+            el.game.newGame();
+            el.wonDialog.close();
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        });
+        window.addEventListener("showwondialog", e => {
+            console.debug(`Won in round ${e.detail.rounds}`);
+            el.wonDialog.querySelector("#won-rounds").textContent = e.detail.rounds;
+            el.wonDialog.showModal();
+        });
+    }
+
 
     function main() {
         console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
@@ -701,7 +720,9 @@ numemory-card {
             el.rounds.textContent = e.detail.round;
         });
 
-        enableSettingsDialog();
+        configSettingsDialog();
+        configWonDialog();
+
         el.game.start();
     }
 
