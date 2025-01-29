@@ -495,7 +495,7 @@ numemory-card {
 
         _onClick(_e) {
             if (this._locked && !this._autoHide) {
-                this._reset();
+                this.reset();
             }
         }
 
@@ -511,7 +511,7 @@ numemory-card {
                 if (this._autoHide) {
                     setTimeout(() => {
                         ++this.round;
-                        this._reset();
+                        this.reset();
                     }, this._autoHideMs);    
                 }
             }
@@ -554,7 +554,7 @@ numemory-card {
 
         newGame() {
             this._generateCards();
-            this._reset();
+            this.reset();
             this.round = 1;
         }
 
