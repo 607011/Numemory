@@ -208,20 +208,20 @@ div {
         /**
          * @returns {Number}
          */
-        get x() {
-            return this._x;
-        }
-        /**
-         * @returns {Number}
-         */
-        get y() {
-            return this._y;
-        }
-        /**
-         * @returns {Number}
-         */
         get index() {
             return this._index;
+        }
+        /**
+         * @param {Number} idx
+         */
+        set index(idx) {
+            this._index = idx;
+        }
+        /**
+         * @returns {Number}
+         */
+        get x() {
+            return this._x;
         }
         /**
          * @param {Number} x
@@ -229,6 +229,12 @@ div {
         set x(x) {
             this._x = x;
             this.style.left = `${x}px`;
+        }
+        /**
+         * @returns {Number}
+         */
+        get y() {
+            return this._y;
         }
         /**
          * @param {Number} y
@@ -254,14 +260,8 @@ div {
         /**
          * @param {String} html
          */
-        set html(html) {
+        setHTMLContent(html) {
             this._imprint.innerHTML = html;
-        }
-        /**
-         * @param {Number} idx
-         */
-        set index(idx) {
-            this._index = idx;
         }
     }
 
@@ -289,6 +289,11 @@ div {
          * @type {Number}
          */
         _cardGap = 8;
+
+        /**
+         * @type {object[]}
+         */
+        _cardData = [];
 
         /**
          * Array of cards placed on the table
@@ -327,6 +332,9 @@ div {
 
         /** @type {Number} Milliseconds to wait before wrong cards will be flipped upside-down automatically */
         _autoHideMs = NumemoryGame.DefaultFrontVisibleDurationMs;
+
+        // _generatorWorker = new Worker("js/generator.js");
+
 
         constructor() {
             super();
@@ -391,66 +399,71 @@ numemory-card {
             window.addEventListener("touchend", this._onTouchEnd.bind(this));
             window.addEventListener("click", this._onClick.bind(this));
             window.addEventListener("cardclicked", this._onCardClicked.bind(this));
+
         }
 
-        static get observedAttributes() {
-            return ["n"];
-        }
-
-        attributeChangedCallback(name, oldValue, newValue) {
-            if (name === "n" && oldValue !== newValue) {
-                this._numCards = parseInt(newValue);
-                this._generateCards();
-            }
-        }
-
-        /**
-         * Check if given overlaps any of the already placed card.
-         * @param {Card} card
-         * @returns {Boolean} `true` if card doesn't overlap any other
-         */
-        _doesNotOverlap(card) {
-            return this._cards.every(existingCard =>
-                card.x > existingCard.x + this._cardWidth + this._cardGap ||
-                card.x + this._cardWidth + this._cardGap < existingCard.x ||
-                card.y > existingCard.y + this._cardHeight + this._cardGap ||
-                card.y + this._cardHeight + this._cardGap < existingCard.y);
-        }
-
-        /**
-         * Create cards and place them randomly on the table.
-         */
-        _generateCards() {
+        _generateCardCoords() {
             const { width, height } = this._table.getBoundingClientRect();
+            let card = {};
+            let placedCards = [];
+
+            const doesNotOverlap = card => {
+                return placedCards.every(existingCard =>
+                    card.x > existingCard.x + this._cardWidth + this._cardGap ||
+                    card.x + this._cardWidth + this._cardGap < existingCard.x ||
+                    card.y > existingCard.y + this._cardHeight + this._cardGap ||
+                    card.y + this._cardHeight + this._cardGap < existingCard.y);
+            };
+
             do {
-                this._cards = [];
                 let restart = false;
-                for (let [i, number] of SERIES.linear(this._numCards)) {
-                    const card = document.createElement("numemory-card");
+                placedCards = [];
+                for (let [index, number] of SERIES.linear(this._numCards)) {
                     let tries = 0;
                     do {
                         if (++tries > 20) {
                             restart = true;
                             break;
                         }
-                        card.x = this._cardGap + (Math.random() * (width - this._cardWidth - 2 * this._cardGap)) | 0;
-                        card.y = this._cardGap + (Math.random() * (height - this._cardHeight - 2 * this._cardGap)) | 0;
+                        card.x = this._cardGap + Math.random() * (width - this._cardWidth - 2 * this._cardGap);
+                        card.y = this._cardGap + Math.random() * (height - this._cardHeight - 2 * this._cardGap);
                     }
-                    while (!this._doesNotOverlap(card));
-                    if (restart) {
+                    while (!doesNotOverlap(card));
+                    if (restart)
                         break;
-                    }
-                    else {
-                        card.index = i;
-                        card.width = this._cardWidth;
-                        card.height = this._cardHeight;
-                        card.html = `<span>${number}</span>`;
-                        this._cards.push(card);
-                    }
+                    placedCards.push(Object.assign({ index, number }, card));
                 }
             }
-            while (this._cards.length < this._numCards);
+            while (placedCards.length !== this._numCards);
+
+            placedCards.forEach(card => {
+                card.x /= width;
+                card.y /= height;
+            })
+            this._cardData = placedCards;
+        }
+
+        _placeCards() {
+            const { width, height } = this._table.getBoundingClientRect();
+            this._cards = this._cardData.map(cardData => {
+                const card = document.createElement("numemory-card");
+                card.index = cardData.index;
+                card.x = cardData.x * width;
+                card.y = cardData.y * height;
+                card.width = this._cardWidth;
+                card.height = this._cardHeight;
+                card.setHTMLContent(`<span>${cardData.number}</span>`);
+                return card;
+            });
             this._table.replaceChildren(...this._cards);
+        }
+
+        /**
+         * Create cards and place them randomly on the table.
+         */
+        _generateCards() {
+            this._generateCardCoords();
+            this._placeCards();
         }
 
         _updateDynamicStyles() {
@@ -472,6 +485,7 @@ numemory-card {
         /** @param {ResizeEvent} _e - not used */
         _onResize(_e) {
             this._updateDynamicStyles();
+            this._placeCards();
         }
 
         /** @param {TouchEvent} _e - not used */
@@ -518,7 +532,7 @@ numemory-card {
             else {
                 if (++this._cardIndex === this._numCards) {
                     setTimeout(() => {
-                        dispatchEvent(new CustomEvent("showwondialog", { detail: { rounds: this._round }}));
+                        dispatchEvent(new CustomEvent("showwondialog", { detail: { rounds: this._round } }));
                     }, 250);
                 }
             }
