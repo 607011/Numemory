@@ -647,17 +647,21 @@ numemory-card {
             el.game.numCards = numCards;
             localStorage.setItem("numemory-num-cards", el.game.numCards);
             el.game.autoHide = autoHideCheckbox.checked;
+            if (el.game.autoHide) {
+                el.game.hideAllCards();
+                el.game.reset();
+            }
             localStorage.setItem("numemory-auto-hide", el.game.autoHide);
             el.game.reverseOrder = reverseOrderCheckbox.checked;
             localStorage.setItem("numemory-reverse-order", el.game.reverseOrder);
             el.game.autoHideMs = parseInt(autoHideMsInput.value);
             localStorage.setItem("numemory-auto-hide-ms", el.game.autoHideMs);
             el.settingsDialog.close();
-            e.stopPropagation();
-            e.preventDefault();
             if (newGame) {
                 el.game.newGame();
             }
+            e.stopPropagation();
+            e.preventDefault();
         });
         window.addEventListener("showsettings", () => {
             numCardsInput.value = el.game.numCards;
