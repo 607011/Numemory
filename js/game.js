@@ -662,8 +662,11 @@ numemory-card {
             autoHideMsInput.value = el.game.autoHideMs;
             el.settingsDialog.showModal();
         });
-        document.querySelector("#menu-button").addEventListener("click",
-            () => dispatchEvent(new CustomEvent("showsettings")));
+        document.querySelector("#menu-button").addEventListener("click", e => {
+            dispatchEvent(new CustomEvent("showsettings"));
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        });
     }
 
 
