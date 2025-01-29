@@ -704,12 +704,10 @@ numemory-card {
             e.preventDefault();
         });
         window.addEventListener("showwondialog", e => {
-            console.debug(`Won in round ${e.detail.rounds}`);
             el.wonDialog.querySelector("#won-rounds").textContent = e.detail.rounds;
             el.wonDialog.showModal();
         });
     }
-
 
     function main() {
         console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
