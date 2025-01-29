@@ -525,11 +525,15 @@ numemory-card {
             }
         }
 
-        _reset() {
+        hideAllCards() {
+            this._cards.forEach(card => card.hide());
+        }
+
+        reset() {
             this.unlock();
             this._table.classList.remove("wrong");
             this._cardIndex = 0;
-            this._cards.forEach(card => card.hide());
+            this.hideAllCards();
         }
 
         /** Disable user interaction */
