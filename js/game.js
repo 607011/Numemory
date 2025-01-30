@@ -713,6 +713,7 @@ numemory-card {
         console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
         console.info("Copyright ©️ 2025 Oliver Lau <oliver@ersatzworld.net>");
 
+        /*
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/service-worker.js")
                 .then(registration => {
@@ -722,6 +723,7 @@ numemory-card {
                     console.error(`Service Worker registration failed: ${error}`);
                 });
         }
+        */
 
         customElements.define("numemory-card", Card);
         customElements.define("numemory-game", NumemoryGame);
