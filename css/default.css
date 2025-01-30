@@ -98,6 +98,11 @@ dialog>div {
     margin: 0 auto;
     width: fit-content;
     font-size: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 dialog h2 {
@@ -113,76 +118,19 @@ dialog p {
     margin: 0 0 1ex 0;
 }
 
-dialog .form {
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 16px;
-}
-
-dialog .form>div:nth-child(odd) {
-    text-align: right;
-}
-
-@media (max-width: 390px) {
-    dialog .form {
-        display: flex;
-        flex-direction: column;
-        flex-flow: column;
-    }
-
-    dialog .form>div {
-        text-align: left !important;
-    }
-
-    dialog button {
-        margin-bottom: 8px;
-    }
-
-    dialog .form>div:nth-child(odd) {
-        text-align: right;
-        border-bottom: 4px solid var(--dark-color);
-        padding-bottom: 8px;
-        margin-bottom: 8px;
-    }
-
-    dialog .form>div:nth-child(1) {
-        order: 2;
-    }
-
-    dialog .form>div:nth-child(2) {
-        order: 1;
-    }
-
-    dialog .form>div:nth-child(3) {
-        order: 4;
-    }
-
-    dialog .form>div:nth-child(4) {
-        order: 3;
-    }
-
-    dialog .form>div:nth-child(5) {
-        order: 6;
-    }
-
-    dialog .form>div:nth-child(6) {
-        order: 5;
-    }
-
-    dialog .form>div:nth-child(7) {
-        order: 8;
-    }
-
-    dialog .form>div:nth-child(8) {
-        order: 7;
-    }
-}
-
 dialog>div:last-child {
     margin-top: 2ex;
 }
 
+dialog div>div {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
 dialog input {
+    display: inline-block;
     font-family: GameBoy, monospace;
     font-size: 1rem;
     padding: 1ex 0.5em;
@@ -207,24 +155,55 @@ dialog input[type="number"] {
     text-align: right;
 }
 
+:root {
+    --checkbox-size: clamp(22px, 2vw, 44px);
+    --checkbox-border-size: 3px;
+}
+
 dialog input[type="checkbox"] {
-    outline-width: calc(clamp(18px, 2vw, 22px) / 2);
-    outline-color: var(--dark-color);
-    outline-style: solid;
-    background-color: var(--bg-color);
+    position: relative;
+    appearance: none;
+    left: var(--checkbox-size);
+    top: 0;
+    z-index: 0;
+}
+
+dialog input[type="checkbox"]+label {
+    position: relative;
+    display: block;
     cursor: pointer;
-    width: 22px;
-    height: 22px;
+    padding-left: calc(3 * var(--checkbox-size));
+    height: calc(2 * var(--checkbox-size));
 }
 
-label:not(:has(input[type="checkbox"]:checked)) {
+dialog input[type="checkbox"]+label:before {
+    width: calc(var(--checkbox-size) * 2);
+    height: var(--checkbox-size);
+    border: var(--checkbox-border-size) solid var(--light-color);
     background-color: var(--bg-color);
+    content: "";
+    margin-right: var(--checkbox-size);
+    z-index: 5;
+    position: absolute;
+    left: 0;
 }
 
-label:has(input[type="checkbox"]:checked) {
+dialog input[type="checkbox"]+label:after {
+    background-color: var(--fg-color);
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    content: "";
+    position: absolute;
+    left: var(--checkbox-border-size);
+    top: var(--checkbox-border-size);
+    z-index: 10;
+}
+
+dialog input[type="checkbox"]:checked+label:before {
     background-color: var(--light-color);
 }
 
-input[type="checkbox"]:checked {
-    background-color: var(--light-color);
+dialog input[type="checkbox"]:checked+label:after {
+    background-color: white;
+    margin: 0 0 0 var(--checkbox-size);
 }
