@@ -169,6 +169,7 @@ figure {
 
 figure > img {
   image-rendering: pixelated;
+  aspect-ratio: 1 / 1;
   vertical-align: bottom;
 };
 `;

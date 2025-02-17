@@ -70,7 +70,8 @@ numemory-game {
     height: 100%;
 }
 
-#menu-button, #help-button {
+#menu-button,
+#help-button {
     cursor: pointer;
 }
 
@@ -114,7 +115,9 @@ dialog h2:not(:first-child) {
     margin-top: 2ex;
 }
 
-dialog p {
+dialog p,
+ol,
+h3 {
     margin: 0 0 1ex 0;
 }
 
@@ -206,4 +209,15 @@ dialog input[type="checkbox"]:checked+label:before {
 dialog input[type="checkbox"]:checked+label:after {
     background-color: white;
     margin: 0 0 0 var(--checkbox-size);
+}
+
+ol {
+    display: block;
+}
+
+ol>li {
+    display: list-item;
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin-left: 3em;
 }
