@@ -17,16 +17,17 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Numemory">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <!-- <link rel="manifest" href="manifest.json" /> -->
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/default.css">
-    <link rel="preload" as="image" href="images/backface.png" />
+    <link rel="icon" sizes="32x32" href="images/icon-32x32.png">
+    <link rel="preload" as="image" href="images/backface.png">
 </head>
 
 <body>
     <header>
         <div>Numemory</div>
         <div>Round <span id="rounds">0</span></div>
-        <div><span id="menu-button">(</span></div>
+        <div><span id="help-button">?</span> <span id="menu-button">(</span></div>
     </header>
     <main>
         <numemory-game></numemory-game>
@@ -35,27 +36,40 @@
         <div>&copy; 2025 Oliver Lau</div>
         <div></div>
     </footer>
+    <dialog id="help-dialog">
+        <div>
+            <h2>Help</h2>
+            <div>
+                <p>Welcome to Numemory!</p>
+                <p>
+                    This is a variation of the popular Memory game. But unlike Memory you don't have
+                    to flip cards in pairs, but in the correct order. The order is determined
+                    by numbers on the front face of the card. In this special edition of Numemory
+                    the numbers are years of birth of famous IT and computer science personage.
+                </p>
+            </div>
+            <div class="form">
+                <button data-id="ok">OK</button>
+            </div>
+        </div>
+    </dialog>
     <dialog id="settings-dialog">
         <div>
             <h2>Settings</h2>
-            <div>
-                <label for="num-cards">Number of cards</label>
-                <input type="number" size="3" value="10" min="3" name="num-cards" id="num-cards"></input>
-            </div>
-            <div>
+            <div class="form">
                 <label for="auto-hide-ms">Millisecs to wait before cards are automatically hidden</label>
                 <input type="number" size="5" value="500" min="100" max="10000" step="100" name="auto-hide-ms"
                     id="auto-hide-ms"></input>
             </div>
-            <div>
+            <div class="form">
                 <input type="checkbox" name="auto-hide" id="auto-hide"></input>
                 <label for="auto-hide">Automatically hide cards after wrong turn</label>
             </div>
-            <div>
+            <div class="form">
                 <input type="checkbox" name="reverse-order" id="reverse-order"></input>
                 <label for="reverse-order">Cards must be selected in reverse order</label>
             </div>
-            <div>
+            <div class="form">
                 <button data-id="cancel">Cancel</button>
                 <button data-id="apply">Apply</button>
             </div>

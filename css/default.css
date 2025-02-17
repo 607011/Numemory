@@ -70,7 +70,7 @@ numemory-game {
     height: 100%;
 }
 
-#menu-button {
+#menu-button, #help-button {
     cursor: pointer;
 }
 
@@ -122,7 +122,7 @@ dialog>div:last-child {
     margin-top: 2ex;
 }
 
-dialog div>div {
+dialog div>div.form {
     display: flex;
     flex-direction: row;
     gap: 8px;

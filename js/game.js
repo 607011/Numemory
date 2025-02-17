@@ -22,6 +22,8 @@
 (function (window) {
     "use strict";
 
+    const VERSION = "1.0.0-IT-people"
+
     const SERIES = {
         linear: function* linear(maxNums) {
             for (let i = 0; i < maxNums; ++i) {
@@ -96,7 +98,7 @@ div {
     transition-property: transform;
     transition-duration: 250ms;
     transition-timing-function: ease-in-out;
-    border-radius: 10%;
+    border-radius: calc(var(--card-width) / 10);
 }
 
 .face {
@@ -112,6 +114,7 @@ div {
     cursor: not-allowed;
     pointer-events: none;
     background-color: var(--dark-color);
+    overflow: hidden;
 }
 
 .front.face > div {
@@ -120,7 +123,7 @@ div {
 }
 
 .front.face > div:first-child {
-    font-size: 2rem;
+    font-size: 1.3rem;
 }
 
 .back {
@@ -137,14 +140,37 @@ div {
     position: relative;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: space-between;
+}
+
+.face div {
+    width: auto;
+    height: 100%;
+    position: relative;
+    flex-grow: 0;
 }
 
 .upside-down {
     transform: rotateY(180deg);
     cursor: pointer;
 }
+
+.image {
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+figure {
+  display: block;
+  flex-grow: 1;
+  aspect-ratio: 1 / 1;
+  vertical-align: bottom;
+}
+
+figure > img {
+  image-rendering: pixelated;
+  vertical-align: bottom;
+};
 `;
             this._container = document.createElement("div");
             this._container.addEventListener("click", this._onClick.bind(this));
@@ -157,32 +183,6 @@ div {
             this._container.appendChild(this._back);
             this._container.className = "container upside-down";
             this._shadow.append(this._style, this._container);
-        }
-
-        static get observedAttributes() {
-            return ["x", "y", "width", "height", "title"];
-        }
-
-        attributeChangedCallback(name, _oldValue, newValue) {
-            switch (name) {
-                case "x":
-                    this.x = parseInt(newValue);
-                    break;
-                case "y":
-                    this.y = parseInt(newValue);
-                    break;
-                case "width":
-                    this.width = parseInt(newValue);
-                    break;
-                case "height":
-                    this.height = parseInt(newValue);
-                    break;
-                case "text":
-                    this.html = newValue;
-                    break;
-                default:
-                    break;
-            }
         }
 
         /**
@@ -269,7 +269,6 @@ div {
       * Custom web element representing the Numemory game.
       */
     class NumemoryGame extends HTMLElement {
-        static DefaultNumCards = 10;
         static DefaultFrontVisibleDurationMs = 1000;
 
         /** 
@@ -330,11 +329,17 @@ div {
          */
         _autoHide = true;
 
-        /** @type {Number} Milliseconds to wait before wrong cards will be flipped upside-down automatically */
+        /**
+         *  Milliseconds to wait before wrong cards will be flipped upside-down automatically 
+         * @type {Number}
+         */
         _autoHideMs = NumemoryGame.DefaultFrontVisibleDurationMs;
 
-        // _generatorWorker = new Worker("js/generator.js");
-
+        /** 
+         * Data to be displayed on the front faces of the cards.
+         * @type {object[]}
+         */
+        _cardInfo;
 
         constructor() {
             super();
@@ -390,8 +395,6 @@ numemory-card {
             this._table.setAttribute("role", "application");
             this._table.setAttribute("aria-label", "Numemory - A variant of the popular Memory game where you have to flip cards in the correct order");
 
-            this._numCards = parseInt(this.getAttribute("n") || NumemoryGame.DefaultNumCards);
-
             this._shadow.append(this._style, this._dynamicStyle, this._table);
 
             window.addEventListener("resize", this._onResize.bind(this));
@@ -399,15 +402,18 @@ numemory-card {
             window.addEventListener("touchend", this._onTouchEnd.bind(this));
             window.addEventListener("click", this._onClick.bind(this));
             window.addEventListener("cardclicked", this._onCardClicked.bind(this));
-
         }
 
         _generateCardCoords() {
             const { width, height } = this._table.getBoundingClientRect();
+            if (width === 0 || height === 0)
+                return;
             let card = {};
-            let placedCards = [];
+            let placedCards;
 
             const doesNotOverlap = card => {
+                if (placedCards.length === 0)
+                    return true;
                 return placedCards.every(existingCard =>
                     card.x > existingCard.x + this._cardWidth + this._cardGap ||
                     card.x + this._cardWidth + this._cardGap < existingCard.x ||
@@ -418,23 +424,24 @@ numemory-card {
             do {
                 let restart = false;
                 placedCards = [];
-                for (let [index, number] of SERIES.linear(this._numCards)) {
+                for (const { name, number, img, index } of this._cardInfo) {
                     let tries = 0;
                     do {
                         if (++tries > 20) {
                             restart = true;
                             break;
                         }
-                        card.x = this._cardGap + Math.random() * (width - this._cardWidth - 2 * this._cardGap);
-                        card.y = this._cardGap + Math.random() * (height - this._cardHeight - 2 * this._cardGap);
+                        card.x = Math.floor(this._cardGap + Math.random() * (width - this._cardWidth - 2 * this._cardGap));
+                        card.y = Math.floor(this._cardGap + Math.random() * (height - this._cardHeight - 2 * this._cardGap));
                     }
                     while (!doesNotOverlap(card));
                     if (restart)
                         break;
-                    placedCards.push(Object.assign({ index, number }, card));
+                    const newCard = Object.assign({ index, number, img, name }, card);
+                    placedCards.push(newCard);
                 }
             }
-            while (placedCards.length !== this._numCards);
+            while (placedCards.length !== this._cardInfo.length);
 
             placedCards.forEach(card => {
                 card.x /= width;
@@ -443,6 +450,23 @@ numemory-card {
             this._cardData = placedCards;
         }
 
+        /**
+         * Adjust cards' positions and sizes to table size.
+         */
+        _adjustCards() {
+            const { width, height } = this._table.getBoundingClientRect();
+            this._cardData.forEach(cardData => {
+                const { index, x, y } = cardData;
+                this._cards[index].x = x * width;
+                this._cards[index].y = y * height;
+                this._cards[index].width = this._cardWidth;
+                this._cards[index].height = this._cardHeight;
+            });
+        }
+
+        /**
+         * Generate `Card` objects from `_cardData` and place them on the table.
+         */
         _placeCards() {
             const { width, height } = this._table.getBoundingClientRect();
             this._cards = this._cardData.map(cardData => {
@@ -452,7 +476,11 @@ numemory-card {
                 card.y = cardData.y * height;
                 card.width = this._cardWidth;
                 card.height = this._cardHeight;
-                card.setHTMLContent(`<span>${cardData.number}</span>`);
+                let html = `<div>${cardData.number}</div>`;
+                if (cardData.img) {
+                    html += `<figure><img src="${cardData.img}" alt="${cardData.name}" width="100%" /></figure>`;
+                }
+                card.setHTMLContent(html);
                 return card;
             });
             this._table.replaceChildren(...this._cards);
@@ -462,6 +490,8 @@ numemory-card {
          * Create cards and place them randomly on the table.
          */
         _generateCards() {
+            if (!this._cardInfo || this._cardInfo.length === 0)
+                return;
             this._generateCardCoords();
             this._placeCards();
         }
@@ -469,8 +499,8 @@ numemory-card {
         _updateDynamicStyles() {
             const { width, height } = document.body.getBoundingClientRect();
             const scale = 1.2 * Math.min(width, height);
-            this._cardWidth = scale / this._numCards;
-            this._cardHeight = this._cardWidth * 1.5;
+            this._cardWidth = Math.floor(scale / this._cardInfo.length);
+            this._cardHeight = Math.floor(this._cardWidth * 1.5);
             this._dynamicStyle.textContent = `
 :host {
     --card-width: ${this._cardWidth}px;
@@ -485,7 +515,7 @@ numemory-card {
         /** @param {ResizeEvent} _e - not used */
         _onResize(_e) {
             this._updateDynamicStyles();
-            this._placeCards();
+            this._adjustCards();
         }
 
         /** @param {TouchEvent} _e - not used */
@@ -530,7 +560,7 @@ numemory-card {
                 }
             }
             else {
-                if (++this._cardIndex === this._numCards) {
+                if (++this._cardIndex === this._cardInfo.length) {
                     setTimeout(() => {
                         dispatchEvent(new CustomEvent("showwondialog", { detail: { rounds: this._round } }));
                     }, 250);
@@ -540,6 +570,10 @@ numemory-card {
 
         hideAllCards() {
             this._cards.forEach(card => card.hide());
+        }
+
+        showAllCards() {
+            this._cards.forEach(card => card.show());
         }
 
         reset() {
@@ -605,16 +639,6 @@ numemory-card {
             this.dispatchEvent(new CustomEvent("round", { detail: { round } }))
         }
 
-        /** @returns {Number} number of cards in game */
-        get numCards() {
-            return this._numCards;
-        }
-
-        /** @param {Number} numbCards - number of cards in game */
-        set numCards(numCards) {
-            this._numCards = numCards;
-        }
-
         /**
          * @returns {Number} Milliseconds to wait until a shown card will be automatically flipped upside-down.
          */
@@ -628,15 +652,28 @@ numemory-card {
         set autoHideMs(autoHideMs) {
             this._autoHideMs = autoHideMs;
         }
+
+        /**
+         * @param {object} cardInfo
+        */
+        set cardInfo(cardInfo) {
+            this._cardInfo = cardInfo;
+            this._generateCards();
+        }
+
     }
 
     let el = {};
 
     function configSettingsDialog() {
+        el.helpDialog = document.querySelector("#help-dialog");
+        const okButton = el.helpDialog.querySelector('button[data-id="ok"]');
+        okButton.addEventListener("click", e => {
+            el.helpDialog.close();
+            e.stopPropagation();
+            e.preventDefault();
+        });
         el.settingsDialog = document.querySelector("#settings-dialog");
-        const numCardsInput = el.settingsDialog.querySelector("input[name='num-cards']");
-        el.game.numCards = parseInt(localStorage.getItem("numemory-num-cards") || NumemoryGame.DefaultNumCards);
-        numCardsInput.value = el.game.numCards;
         const autoHideCheckbox = el.settingsDialog.querySelector("input[name='auto-hide']");
         el.game.autoHide = localStorage.getItem("numemory-auto-hide") === "true";
         autoHideCheckbox.checked = el.game.autoHide;
@@ -656,10 +693,7 @@ numemory-card {
         });
         const applyButton = el.settingsDialog.querySelector('button[data-id="apply"]');
         applyButton.addEventListener("click", e => {
-            const numCards = parseInt(numCardsInput.value);
-            const newGame = el.game.reverseOrder !== reverseOrderCheckbox.checked || el.game.numCards !== numCards;
-            el.game.numCards = numCards;
-            localStorage.setItem("numemory-num-cards", el.game.numCards);
+            const newGame = el.game.reverseOrder !== reverseOrderCheckbox.checked;
             el.game.autoHide = autoHideCheckbox.checked;
             if (el.game.autoHide) {
                 el.game.hideAllCards();
@@ -678,7 +712,6 @@ numemory-card {
             e.preventDefault();
         });
         window.addEventListener("showsettings", () => {
-            numCardsInput.value = el.game.numCards;
             autoHideCheckbox.checked = el.game.autoHide;
             reverseOrderCheckbox.checked = el.game.reverseOrder;
             autoHideMsInput.value = el.game.autoHideMs;
@@ -686,6 +719,14 @@ numemory-card {
         });
         document.querySelector("#menu-button").addEventListener("click", e => {
             dispatchEvent(new CustomEvent("showsettings"));
+            e.stopImmediatePropagation();
+            e.preventDefault();
+        });
+        window.addEventListener("showhelp", () => {
+            el.helpDialog.showModal();
+        });
+        document.querySelector("#help-button").addEventListener("click", e => {
+            dispatchEvent(new CustomEvent("showhelp"));
             e.stopImmediatePropagation();
             e.preventDefault();
         });
@@ -710,10 +751,9 @@ numemory-card {
     }
 
     function main() {
-        console.info("%cNumemory %cstarted.", "color:rgb(222, 156, 43); font-weight: bold", "color: initial; font-weight: normal;");
+        console.info("%c Numemory %c started.", "font-size: 130%; color: white; background-color:rgb(48, 98, 48); font-weight: bold", "color: initial; font-weight: normal;");
         console.info("Copyright ©️ 2025 Oliver Lau <oliver@ersatzworld.net>");
 
-        /*
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/service-worker.js")
                 .then(registration => {
@@ -723,7 +763,6 @@ numemory-card {
                     console.error(`Service Worker registration failed: ${error}`);
                 });
         }
-        */
 
         customElements.define("numemory-card", Card);
         customElements.define("numemory-game", NumemoryGame);
@@ -737,7 +776,28 @@ numemory-card {
         configSettingsDialog();
         configWonDialog();
 
-        el.game.start();
+        fetch("data/people.json")
+            .then(response => response.json())
+            .then(json => {
+                el.game.cardInfo = json.map((entry, index) => {
+                    return Object.assign({ index }, entry);
+                });
+                el.game.start();
+            })
+            .catch(error => console.error(error));
+
+        // let cardInfo = [...SERIES.linear(11)].map(([index, number]) => {
+        //     return { index, number };
+        // });
+        // el.game.cardInfo = cardInfo;
+
+        window.addEventListener("keyup", e => {
+            if (e.key === "s") {
+                el.game.showAllCards();
+            }
+            e.preventDefault();
+        });
+
     }
 
     window.addEventListener("pageshow", main);

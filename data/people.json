@@ -1,0 +1,52 @@
+[
+    {
+        "name": "Ada Lovelace",
+        "number": 1815,
+        "img": "images/people/converted/ada-lovelace.png"
+    },
+    {
+        "name": "John von Neumann",
+        "number": 1903,
+        "img": "images/people/converted/john-von-neumann.png"
+    },
+    {
+        "name": "Konrad Zuse",
+        "number": 1910,
+        "img": "images/people/converted/konrad-zuse.png"
+    },
+    {
+        "name": "Alan Turing",
+        "number": 1912,
+        "img": "images/people/converted/alan-turing.png"
+    },
+    {
+        "name": "Frances E. Allen",
+        "number": 1932,
+        "img": "images/people/converted/frances-e-allen.png"
+    },
+    {
+        "name": "Margaret Hamilton",
+        "number": 1936,
+        "img": "images/people/converted/margaret-hamilton.png"
+    },
+    {
+        "name": "Lenore Blum",
+        "number": 1942,
+        "img": "images/people/converted/lenore-blum.png"
+    },
+    {
+        "name": "Bjarne Stroustrup",
+        "number": 1950,
+        "img": "images/people/converted/bjarne-stroustrup.png"
+    },
+    {
+        "name": "Steve Jobs",
+        "number": 1955,
+        "img": "images/people/converted/steve-jobs.png"
+    },
+    {
+        "name": "Steve Ballmer",
+        "number": 1956,
+        "img": "images/people/converted/steve-ballmer.png"
+    }
+]
